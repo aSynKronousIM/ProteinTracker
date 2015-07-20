@@ -9,8 +9,21 @@ if (Meteor.isClient) {
 
     Template.userDetails.helpers({
         user: function() {
-            var user = ProteinData.findOne();
-            return user;
+            var data = ProteinData.findOne();
+            if (!data) {
+                data = {
+                    userId: Meteor.userId(),
+                    total: 0,
+                    goal: 200
+                }
+                ProteinData.insert(data);
+            }
+
+            return data;
+        },
+
+        lastAmount: function() {
+            return Session.get('lastAmount');
         }
     });
 
@@ -31,8 +44,10 @@ if (Meteor.isClient) {
             History.insert({
                 value: amount,
                 date: new Date().toTimeString(),
-                userId: this._id
-            })
+                userId: this.userId
+            });
+
+            Session.set('lastAmount', amount);
         }
     });
 }
@@ -40,11 +55,15 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
 
     Meteor.publish('allProteinData', function() {
-        return ProteinData.find();
+        return ProteinData.find({userId: this.userId});
     });
 
     Meteor.publish('allHistory', function() {
-        return History.find();
+        return History.find({userId: this.userId}, {sort: {date: -1}, limit: 5});
+    });
+
+    Meteor.startup(function() {
+        // code to run at startup
     });
 
 }
