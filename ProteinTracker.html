@@ -3,9 +3,11 @@
 </head>
 
 <body>
-    <h1>Protein Tracker</h1>
-    {{> userDetails}}
-    {{> history}}
+    <h1>Protein Tracker</h1>{{> loginButtons}}
+    {{#if currentUser}}
+        {{> userDetails}}
+        {{> history}}
+    {{/if}}
 </body>
 
 <template name="userDetails">

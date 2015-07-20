@@ -1,15 +1,15 @@
-Users = new Meteor.Collection('users');
+ProteinData = new Meteor.Collection('protein-data');
 History = new Meteor.Collection('historyItem');
 
 
 if (Meteor.isClient) {
 
-    Meteor.subscribe('allUsers');
+    Meteor.subscribe('allProteinData');
     Meteor.subscribe('allHistory');
 
     Template.userDetails.helpers({
         user: function() {
-            var user = Users.findOne();
+            var user = ProteinData.findOne();
             return user;
         }
     });
@@ -26,7 +26,7 @@ if (Meteor.isClient) {
 
             var amount = parseInt($('#amount').val());
 
-            Users.update(this._id, {$inc: {total: amount}});
+            ProteinData.update(this._id, {$inc: {total: amount}});
 
             History.insert({
                 value: amount,
@@ -39,37 +39,12 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
 
-    Meteor.publish('allUsers', function() {
-        return Users.find();
+    Meteor.publish('allProteinData', function() {
+        return ProteinData.find();
     });
 
     Meteor.publish('allHistory', function() {
         return History.find();
     });
 
-
-    Meteor.startup(function() {
-
-        if (Users.find().count() === 0) {
-            Users.insert({
-                total: 120,
-                goal: 200
-            });
-        }
-
-        if (History.find().count() === 0) {
-            History.insert({
-                value: 50,
-                date: new Date().toTimeString()
-            });
-            History.insert({
-                value: 30,
-                date: new Date().toTimeString()
-            });
-            History.insert({
-                value: 20,
-                date: new Date().toTimeString()
-            });
-        }
-  });
 }
