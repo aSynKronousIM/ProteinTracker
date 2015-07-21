@@ -1,11 +1,52 @@
 ProteinData = new Meteor.Collection('protein-data');
 History = new Meteor.Collection('historyItem');
 
+//ProteinData.deny({
+//    update: function(userId, data) {
+//        if (data.total > 0) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
+//});
+
+Meteor.methods({
+    addProtein: function(amount) {
+        if (!this.isSimulation) {
+            var Future = Npm.require('fibers/future');
+            var future = new Future();
+            Meteor.setTimeout(function() {
+                future.return();
+            }, 3 * 1000);
+            future.wait();
+        } else {
+            amount = 500;
+        }
+
+        ProteinData.update({userId: this.userId}, {$inc: {total: amount}});
+
+        History.insert({
+            value: amount,
+            date: new Date().toTimeString(),
+            userId: this.userId
+        });
+    }
+});
 
 if (Meteor.isClient) {
 
     Meteor.subscribe('allProteinData');
     Meteor.subscribe('allHistory');
+
+    Deps.autorun(function() {
+        if (Meteor.user()) {
+            console.log("User logged in: " + Meteor.user().profile.name);
+        } else {
+            console.log("User logged out!");
+        }
+    });
+
 
     Template.userDetails.helpers({
         user: function() {
@@ -39,15 +80,19 @@ if (Meteor.isClient) {
 
             var amount = parseInt($('#amount').val());
 
-            ProteinData.update(this._id, {$inc: {total: amount}});
-
-            History.insert({
-                value: amount,
-                date: new Date().toTimeString(),
-                userId: this.userId
+            Meteor.call('addProtein', amount, function(error, id) {
+                if (error) {
+                    return alert(error.reason);
+                }
             });
 
             Session.set('lastAmount', amount);
+        },
+
+        'click #quickSubtract': function(e) {
+            e.preventDefault();
+
+            ProteinData.update(this._id, {$inc: {total: -100}});
         }
     });
 }

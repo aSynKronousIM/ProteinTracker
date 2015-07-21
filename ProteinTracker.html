@@ -3,7 +3,7 @@
 </head>
 
 <body>
-    <h1>Protein Tracker!</h1>
+    <h1>Protein Tracker</h1>
     {{> loginButtons}}
     {{#if currentUser}}
         {{> userDetails}}
@@ -17,9 +17,12 @@
         <h2>Goal: <span>{{goal}}</span></h2>
         <h3>Enter amount: </h3>
     {{/with}}
+
         <input type="text" id="amount" value="{{lastAmount}}"/>
+
     {{#with user}}
         <input type="submit" id="addAmount" value="Add Protein"/>
+        <input type="submit" id="quickSubtract" value="-100"/>
     {{/with}}
 </template>
 
